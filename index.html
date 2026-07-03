@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>イラストコミッション見積もりシミュレーター</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="container">
+
+  <header class="page-header">
+    <h1>お見積もりシミュレーター</h1>
+    <p>項目を選ぶだけで、その場で金額を確認できます。</p>
+  </header>
+
+  <!-- STEP1: プラン -->
+  <section id="plan-section">
+    <h2><span class="step-num">1</span>プランを選ぶ</h2>
+    <div class="choice-grid">
+      <button type="button" class="choice-btn" data-plan="A">
+        <span class="choice-label">Aプラン（基本）</span>
+        <span class="choice-sub">納期〜3ヶ月／銀行振込のみ</span>
+      </button>
+      <button type="button" class="choice-btn" data-plan="B">
+        <span class="choice-label">Bプラン（簡易）</span>
+        <span class="choice-sub">納期〜1ヶ月／25%オフ</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- STEP2: 描画範囲 -->
+  <section id="range-section">
+    <h2><span class="step-num">2</span>描画範囲を選ぶ</h2>
+    <div class="choice-grid">
+      <button type="button" class="choice-btn" data-range="shoulder">
+        <span class="choice-label">肩上</span><span class="choice-sub">¥4,000〜</span>
+      </button>
+      <button type="button" class="choice-btn" data-range="waist">
+        <span class="choice-label">腰</span><span class="choice-sub">¥7,000〜</span>
+      </button>
+      <button type="button" class="choice-btn" data-range="knee">
+        <span class="choice-label">膝上</span><span class="choice-sub">¥9,000〜</span>
+      </button>
+      <button type="button" class="choice-btn" data-range="full">
+        <span class="choice-label">全身</span><span class="choice-sub">¥12,000〜</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- STEP3〜4: オプション(プラン・範囲選択まで非活性) -->
+  <section id="options-section" class="locked">
+
+    <h2><span class="step-num">3</span>人数</h2>
+    <div class="stepper-row">
+      <div>
+        <span class="stepper-label">追加人数</span>
+        <span class="stepper-note">基本料金の60%を人数分加算</span>
+      </div>
+      <div class="stepper" id="people-stepper">
+        <button type="button" class="stepper-btn" id="people-dec">−</button>
+        <span class="stepper-value" id="people-value">0</span>
+        <button type="button" class="stepper-btn" id="people-inc">＋</button>
+      </div>
+    </div>
+
+    <h2 style="margin-top:24px;"><span class="step-num">4</span>オプション</h2>
+
+    <div class="option-row">
+      <input type="checkbox" id="character-design" />
+      <span>キャラクターデザイン ¥3,000</span>
+      <small>衣装デザイン1着分を含みます</small>
+    </div>
+
+    <div class="stepper-row">
+      <div>
+        <span class="stepper-label">衣装デザイン追加 ¥2,000／着</span>
+        <span class="stepper-note">2着目以降。キャラクターデザインと併用可</span>
+      </div>
+      <div class="stepper">
+        <button type="button" class="stepper-btn" id="costume-dec">−</button>
+        <span class="stepper-value" id="costume-value">0</span>
+        <button type="button" class="stepper-btn" id="costume-inc">＋</button>
+      </div>
+    </div>
+
+    <div class="option-row">
+      <input type="checkbox" id="three-view" />
+      <span>三面図 ¥3,000（人数分）</span>
+    </div>
+
+    <div class="stepper-row">
+      <div>
+        <span class="stepper-label">小物追加 ¥1,000／個</span>
+      </div>
+      <div class="stepper">
+        <button type="button" class="stepper-btn" id="props-dec">−</button>
+        <span class="stepper-value" id="props-value">0</span>
+        <button type="button" class="stepper-btn" id="props-inc">＋</button>
+      </div>
+    </div>
+
+    <div class="stepper-row">
+      <div>
+        <span class="stepper-label">表情差分</span>
+        <span class="stepper-note">4個目から¥450、9個目から¥400に</span>
+      </div>
+      <div class="stepper">
+        <button type="button" class="stepper-btn" id="face-dec">−</button>
+        <span class="stepper-value" id="face-value">0</span>
+        <button type="button" class="stepper-btn" id="face-inc">＋</button>
+      </div>
+    </div>
+
+    <h2 style="margin-top:24px;">要相談の項目</h2>
+    <div id="consult-options"></div>
+
+  </section>
+
+  <!-- 明細 -->
+  <section>
+    <h2>お見積り明細</h2>
+    <div class="receipt" id="breakdown"></div>
+  </section>
+
+</div>
+
+<!-- 固定フッター -->
+<div class="summary-bar">
+  <div class="summary-bar-inner">
+    <div class="summary-top">
+      <span id="total-amount">¥0</span>
+      <span id="estimate-id"></span>
+    </div>
+    <div class="summary-buttons">
+      <button type="button" class="btn btn-primary" id="btn-estimate" disabled>見積もりを作成</button>
+      <button type="button" class="btn btn-secondary" id="btn-copy" disabled>見積もり内容をコピー</button>
+    </div>
+    <div class="status-msg" id="estimate-status"></div>
+    <div class="status-msg" id="copy-status"></div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
