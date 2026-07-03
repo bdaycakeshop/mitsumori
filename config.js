@@ -10,7 +10,7 @@ const CONFIG = {
 
   // GAS(Google Apps Script)のWebアプリURL
   // ⑦の実装後にここへ貼り付けます(現時点では空でOK)
-  GAS_ENDPOINT: "",
+  GAS_ENDPOINT: "https://script.google.com/macros/s/AKfycbypNvXQzaGh2hP44Ru6a1DOn1ABGTcOoi4OM0PuId1YXoVzVdJNk_BE-b_04weAxa4D/exec",
 
   // 描画範囲ごとの基本料金
   basePrice: {
