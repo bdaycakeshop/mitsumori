@@ -220,15 +220,21 @@ async function notifyGAS(type) {
   const result = calculate();
   if (!result.valid) return;
 
+  // 金額は送らない。GAS側で選択内容から再計算し、改ざんを防ぐ。
   const payload = {
     type, // "created" | "copied"
+    token: CONFIG.SHARED_TOKEN,
     id: currentId,
     plan: state.plan,
     range: state.range,
-    headcount: 1 + state.extraPeople,
-    options: result.options,
-    consultItems: result.consultItems,
-    total: result.total,
+    extraPeople: state.extraPeople,
+    faceVariant: state.faceVariant,
+    props: state.props,
+    characterDesign: state.characterDesign,
+    costumeDesign: state.costumeDesign,
+    threeView: state.threeView,
+    consult: state.consult,
+    displayTotal: result.total, // 表示用の参考値。GAS側では信用しない。
     timestamp: new Date().toISOString(),
   };
 
@@ -242,6 +248,61 @@ async function notifyGAS(type) {
   } catch (err) {
     console.error("GAS通知に失敗しました", err);
   }
+}
+
+// ---------------------------------------------
+// 保存済み見積もりの復元(ID入力 / URLパラメータ)
+// ---------------------------------------------
+async function restoreFromId(id) {
+  if (!CONFIG.GAS_ENDPOINT || !id) return false;
+
+  const statusEl = document.getElementById("restore-status");
+  try {
+    const res = await fetch(`${CONFIG.GAS_ENDPOINT}?id=${encodeURIComponent(id)}`);
+    const data = await res.json();
+
+    if (!data.found) {
+      if (statusEl) statusEl.textContent = "その見積もりIDは見つかりませんでした（保存期限切れの可能性があります）";
+      return false;
+    }
+
+    // 状態を復元
+    state.plan = data.plan;
+    state.range = data.range;
+    state.extraPeople = data.extraPeople;
+    state.faceVariant = data.faceVariant;
+    state.props = data.props;
+    state.characterDesign = data.characterDesign;
+    state.costumeDesign = data.costumeDesign;
+    state.threeView = data.threeView;
+    state.consult = data.consult;
+
+    applyStateToUI();
+    render();
+    currentId = id; // 復元時は同じIDを維持(内容を変更したらまた新IDになる)
+    document.getElementById("estimate-id").textContent = `ID：${currentId}`;
+    if (statusEl) statusEl.textContent = "見積もりを復元しました";
+    return true;
+  } catch (err) {
+    console.error("見積もりの復元に失敗しました", err);
+    if (statusEl) statusEl.textContent = "復元に失敗しました。通信環境をご確認ください";
+    return false;
+  }
+}
+
+function applyStateToUI() {
+  document.querySelectorAll("[data-plan]").forEach(b => b.classList.toggle("selected", b.dataset.plan === state.plan));
+  document.querySelectorAll("[data-range]").forEach(b => b.classList.toggle("selected", b.dataset.range === state.range));
+  document.getElementById("people-value").textContent = state.extraPeople;
+  document.getElementById("face-value").textContent = state.faceVariant;
+  document.getElementById("props-value").textContent = state.props;
+  document.getElementById("costume-value").textContent = state.costumeDesign;
+  document.getElementById("character-design").checked = state.characterDesign;
+  document.getElementById("three-view").checked = state.threeView;
+  CONFIG.consultOnly.forEach(item => {
+    const el = document.getElementById(`consult-${item.key}`);
+    if (el) el.checked = !!state.consult[item.key];
+  });
 }
 
 // ---------------------------------------------
@@ -358,6 +419,16 @@ function buildConsultCheckboxesHTML() {
     .join("");
 }
 
+function setupRestoreUI() {
+  const btn = document.getElementById("btn-restore");
+  const input = document.getElementById("restore-id-input");
+  if (!btn || !input) return;
+  btn.addEventListener("click", () => {
+    const id = input.value.trim().toUpperCase();
+    if (id) restoreFromId(id);
+  });
+}
+
 function init() {
   buildConsultCheckboxesHTML();
 
@@ -371,8 +442,14 @@ function init() {
   setupCheckbox("three-view", "threeView");
   setupConsultCheckboxes();
   setupButtons();
+  setupRestoreUI();
 
   render();
+
+  // URLに ?id=XXXXXX があれば自動で見積もりを復元
+  const params = new URLSearchParams(window.location.search);
+  const idFromUrl = params.get("id");
+  if (idFromUrl) restoreFromId(idFromUrl.toUpperCase());
 }
 
 document.addEventListener("DOMContentLoaded", init);
