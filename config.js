@@ -12,6 +12,10 @@ const CONFIG = {
   // ⑦の実装後にここへ貼り付けます(現時点では空でOK)
   GAS_ENDPOINT: "https://script.google.com/macros/s/AKfycbypNvXQzaGh2hP44Ru6a1DOn1ABGTcOoi4OM0PuId1YXoVzVdJNk_BE-b_04weAxa4D/exec",
 
+  // GAS側のスクリプトプロパティ「SHARED_TOKEN」と同じ文字列を入れてください
+  // (第三者がこのURLを直接叩いて不正なDiscord通知を送るのを防ぐための簡易対策です)
+  SHARED_TOKEN: "hazimeten00tannjyoub1",
+  
   // 描画範囲ごとの基本料金
   basePrice: {
     shoulder: { label: "肩上", price: 4000 },
